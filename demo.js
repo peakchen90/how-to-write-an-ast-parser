@@ -2,6 +2,7 @@ const Parser = require('./parser');
 
 // var abc = "abc"
 const code = `
+  var abc = "abc"
   alert(abc, 246)
 `;
 

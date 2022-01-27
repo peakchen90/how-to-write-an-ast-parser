@@ -31,10 +31,8 @@ class Parser {
       type: 'Program',
       body: []
     }
+    this.readNextToken();
     while (this.checkPosition()) {
-      if (!this.currentToken) {
-        this.readNextToken();
-      }
       const statement = this.parseStatement();
       node.body.push(statement);
     }
@@ -42,9 +40,9 @@ class Parser {
   }
 
   /**
- * 读取下一个 Token
- * (根据第一个字符来判断读取什么类型的 Token)
- */
+   * 读取下一个 Token
+   * (根据第一个字符来判断读取什么类型的 Token)
+   */
   readNextToken() {
     let char = this.input[this.pos];
 
@@ -57,13 +55,18 @@ class Parser {
       }
     }
 
+    // 光标超过边界
+    if (!this.checkPosition()) {
+      return this.currentToken = {type: 'EOF', value: 'EOF'};
+    }
+
     if (isNumberChar(char)) { // 读取一个数字类型 Token
       let value = '';
       while (isNumberChar(char) && this.checkPosition()) {
         value += char;
         char = this.input[++this.pos];
       }
-      this.currentToken = { type: 'NUMBER', value };
+      this.currentToken = {type: 'NUMBER', value};
       return this.currentToken;
     } else if (isIdentifierChar(char)) { // 读取一个标识符类型 Token
       let value = '';
@@ -72,9 +75,9 @@ class Parser {
         char = this.input[++this.pos];
       }
       if (KEYWORD_LIST.includes(value)) {
-        this.currentToken = { type: 'KEYWORD', value };
+        this.currentToken = {type: 'KEYWORD', value};
       } else {
-        this.currentToken = { type: 'IDENTIFIER', value };
+        this.currentToken = {type: 'IDENTIFIER', value};
       }
       return this.currentToken;
     } else if (char === '"') { // 读取一个字符串 Token
@@ -85,7 +88,7 @@ class Parser {
         char = this.input[++this.pos];
       }
       this.pos++; // 跳过字符串右侧的 `"` 字符
-      this.currentToken = { type: 'STRING', value };
+      this.currentToken = {type: 'STRING', value};
       return this.currentToken;
     }
 
@@ -93,16 +96,16 @@ class Parser {
     switch (char) {
       case '=':
         this.pos++;
-        return this.currentToken = { type: 'EQ', value: '=' };
+        return this.currentToken = {type: 'EQ', value: '='};
       case '(':
         this.pos++;
-        return this.currentToken = { type: 'PAREN_L', value: '(' };
+        return this.currentToken = {type: 'PAREN_L', value: '('};
       case ')':
         this.pos++;
-        return this.currentToken = { type: 'PAREN_R', value: ')' };
+        return this.currentToken = {type: 'PAREN_R', value: ')'};
       case ',':
         this.pos++;
-        return this.currentToken = { type: 'COMMA', value: ',' };
+        return this.currentToken = {type: 'COMMA', value: ','};
       default:
         throw new SyntaxError('Unexpected token: ' + char);
     }
@@ -182,6 +185,11 @@ class Parser {
         }
 
         return node;
+      } else {
+        return {
+          type: 'Identifier',
+          name: token.value
+        }
       }
     } else if (token.type === 'NUMBER') {
       this.readNextToken();
